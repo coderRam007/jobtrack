@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: jobtrack_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: jobtrack_user
+      POSTGRES_PASSWORD: jobtrack_password
+      POSTGRES_DB: jobtrack_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: jobtrack_backend
+    restart: always
+    environment:
+      DATABASE_URL: postgresql://jobtrack_user:jobtrack_password@postgres:5432/jobtrack_db
+      JWT_SECRET: jobtrack_production_jwt_secret_key_2026
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: jobtrack_frontend
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:

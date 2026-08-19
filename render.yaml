@@ -1,0 +1,21 @@
+services:
+  # FastAPI Backend
+  - type: web
+    name: jobtrack-backend
+    env: python
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    rootDir: backend
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: jobtrack-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+
+databases:
+  # PostgreSQL Instance
+  - name: jobtrack-db
+    databaseName: jobtrack
+    user: jobtrack_user
